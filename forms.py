@@ -4,7 +4,7 @@ from wtforms.validators import DataRequired, Email
 
 class ContactForm(FlaskForm):
     name = StringField('Name')
-    phone = StringField('Phone')
+    phone = StringField('Phone', validators=[DataRequired(message='Phone number is required!')])
     email = StringField('Email', validators=[Email(message='Invalid email address!')])
     type = SelectField('Type', 
                       choices=[('Personal', 'Personal'), 
