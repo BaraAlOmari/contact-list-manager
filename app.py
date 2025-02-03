@@ -89,10 +89,11 @@ def get_contact(id):
 def create_contact():
     data = request.get_json()
     
-    if not all(k in data for k in ('name', 'phone', 'type')):
-        return jsonify({'error': 'Missing required fields'}), 400
-        
-    contact = Contact(**data)
+    if not data.get('name') or not data['name'].strip():
+        return jsonify({'error': 'Name cannot be empty'}), 400
+
+    contact = Contact(name=data['name'], phone=data['phone'], email=data.get('email'))
+    
     try:
         db.session.add(contact)
         db.session.commit()
