@@ -10,6 +10,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize the database
 db.init_app(app)
+with app.app_context():
+    db.create_all()
 
 # Create database tables
 with app.app_context():
@@ -62,9 +64,12 @@ def update_contact(id):
 @app.route('/delete/<int:id>')
 def delete_contact(id):
     contact = Contact.query.get(id)
-    # Bug: Not actually deleting the contact but returning success
-    # db.session.delete(contact)
-    db.session.commit()
+    if contact:
+        db.session.delete(contact)  # Un-comment this line to delete the contact
+        db.session.commit()  # Commit the change to the database
+        flash('Contact deleted successfully!', 'success')
+    else:
+        flash('Contact not found.', 'error')
     return redirect(url_for('list_contacts'))
 
 # API Routes
@@ -114,10 +119,11 @@ def update_contact_api(id):
 def delete_contact_api(id):
     contact = Contact.query.get(id)
     if contact:
-        # Bug: Same issue in API - not actually deleting
-        # db.session.delete(contact)
-        db.session.commit()
-    return '', 204  # Returns success even though nothing was deleted
+        db.session.delete(contact)  # This line must stay
+        db.session.commit()  # Commit the change to the database
+        return '', 204  # No content (success)
+    else:
+        return jsonify({'error': 'Contact not found'}), 404  # Return an error if contact not found
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001) 
