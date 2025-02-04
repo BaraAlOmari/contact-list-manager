@@ -132,6 +132,21 @@ def delete_contact_api(id):
         return '', 204  # No content (success)
     else:
         return jsonify({'error': 'Contact not found'}), 404  # Return an error if contact not found
+        
+@app.route('/search', methods=['GET'])
+def search_contacts():
+    query = request.args.get('query', '').strip()  # Stripped to avoid issues with extra spaces
+    if query:
+        # Search in name, phone, and email columns
+        contacts = Contact.query.filter(
+            Contact.name.ilike(f'%{query}%') |
+            Contact.phone.ilike(f'%{query}%') |
+            Contact.email.ilike(f'%{query}%')
+        ).all()
+    else:
+        contacts = []  # Return empty list if no query provided
+    
+    return render_template('contacts.html', contacts=contacts, query=query)        
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
